@@ -77,12 +77,15 @@
   NSMutableSet *closedNodes;
   NSString *collideKey;
   NSString *collideValue;
+  BOOL considerDiagonalMovement;
 }
 
 /** The name of the tile property which stores the collision boolean. */
 @property (copy, nonatomic) NSString *collideKey;
 /** The value of the tile property which indicates a collide tile. */
 @property (copy, nonatomic) NSString *collideValue;
+/** If True the path may use diagonal movement. */
+@property (assign, nonatomic) BOOL considerDiagonalMovement;
 
 /**
 * Initialize the object with a CCTMXTileMap and the name of

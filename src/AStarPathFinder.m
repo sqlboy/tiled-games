@@ -36,6 +36,7 @@
 @implementation AStarPathFinder
 @synthesize collideKey;
 @synthesize collideValue;
+@synthesize considerDiagonalMovement;
 
 - (id) initWithTileMap:(CCTMXTiledMap*)aTileMap collideLayer:(NSString*)name
 {
@@ -47,6 +48,7 @@
     collideLayer = [tileMap layerNamed:name];
     collideKey = ASTAR_COLLIDE_PROP_NAME;
     collideValue = ASTAR_COLLIDE_PROP_VALUE;
+    considerDiagonalMovement = YES;
   }
 
   return self;
@@ -136,11 +138,14 @@
           // We use these numbers because the distance to move diagonally
           // is the square root of 2, or 1.414 the cost of moving
           // horizontally or vertically.
-          if (abs(x) == 1 && abs(y) == 1)
+          if (abs(x) == 1 && abs(y) == 1) {
+            if (![self considerDiagonalMovement])
+              continue;
             adjacentNode->G = 14;
-          else
+          }
+          else {
             adjacentNode->G = 10;
-
+          }
           // Calculate H
           // Uses 'Mahhattan' method wich is just the number
           // of horizonal and vertical hops to the target.

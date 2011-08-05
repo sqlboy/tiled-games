@@ -169,12 +169,16 @@
 
   // TODO: allow people to chnage the color of the highlight path.
   CGImageRef pathImage = [self makePathTile];
+  
+  int tileWidthOffset = [tileMap tileSize].width / 2;
+  int tileHeightOffset = [tileMap tileSize].height / 2;
+
   while(node != nil)
   {
     CGPoint p1 = [collideLayer
       positionAt:node->point];
-    p1.x = p1.x + 16;
-    p1.y = p1.y + 16;
+    p1.x = p1.x + tileWidthOffset;
+    p1.y = p1.y + tileHeightOffset;
     
     CCSprite *spr = [CCSprite spriteWithCGImage:pathImage key:@"T"];
     spr.position = p1;
@@ -191,13 +195,17 @@
   if (node == nil)
     return;
 
+  int tileWidthOffset = [tileMap tileSize].width / 2;
+  int tileHeightOffset = [tileMap tileSize].height / 2;
+  
   NSMutableArray *actionList = [NSMutableArray array];
+
   while(node != nil) 
   {
     CGPoint p1 = [collideLayer
       positionAt:node->point];
-    p1.x = p1.x + 16;
-    p1.y = p1.y + 16;
+    p1.x = p1.x + tileWidthOffset;
+    p1.y = p1.y + tileHeightOffset;
     
     CCAction *move = [CCMoveTo actionWithDuration: speed position: p1];
     [actionList addObject:move];

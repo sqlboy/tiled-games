@@ -69,6 +69,9 @@ static const float defaultPathFillColor[4] = {0.2, 0.5, 0.2, 0.3};
   [tileMap release];
   [openNodes release];
   [closedNodes release];
+  [collideKey release];
+  [collideValue release];
+  CFRelease(pathHighlightImage);
   [super dealloc];
 }
 

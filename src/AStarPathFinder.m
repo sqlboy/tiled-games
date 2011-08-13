@@ -112,15 +112,12 @@ static const int adjacentTiles[8][2] = { -1,1, 0,1, 1,1, -1,0,
     {
       [openNodes removeObject:closestNode];
       [closedNodes addObject:closestNode];
-      
-      int currentX = closestNode->point.x;
-      int currentY = closestNode->point.y;
-      
+             
       for (int i=0; i<=numAdjacentTiles; i++) {
         
-        int x = adjacentTiles[i][0] + currentX;
-        int y = adjacentTiles[i][1] + currentY;
-              
+        int x = adjacentTiles[i][0] + closestNode->point.x;
+        int y = adjacentTiles[i][1] + closestNode->point.y;
+
         AStarNode *adjacentNode = [AStarNode
           nodeAtPoint:ccp(x, y)];
         adjacentNode->parent = closestNode;

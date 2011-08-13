@@ -118,11 +118,11 @@ static const int adjacentTiles[8][2] = { -1,1, 0,1, 1,1, -1,0,
       
       for (int i=0; i<=numAdjacentTiles; i++) {
         
-        int x = adjacentTiles[i][0];
-        int y = adjacentTiles[i][1];
+        int x = adjacentTiles[i][0] + currentX;
+        int y = adjacentTiles[i][1] + currentY;
               
         AStarNode *adjacentNode = [AStarNode
-          nodeAtPoint:ccp(currentX+x, currentY+y)];
+          nodeAtPoint:ccp(x, y)];
         adjacentNode->parent = closestNode;
         
         // Skip over this node if its already been closed.
@@ -151,8 +151,7 @@ static const int adjacentTiles[8][2] = { -1,1, 0,1, 1,1, -1,0,
         // Calculate H
         // Uses 'Mahhattan' method wich is just the number
         // of horizonal and vertical hops to the target.
-        adjacentNode->H = abs(adjacentNode->point.x - dst.x) +
-          abs(adjacentNode->point.y - dst.y);
+        adjacentNode->H = abs(x - dst.x) + abs(y - dst.y);
 
         [openNodes addObject:adjacentNode];
       }

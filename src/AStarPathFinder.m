@@ -219,6 +219,13 @@
 
 - (BOOL) isCollision:(CGPoint)point
 {
+  
+  if (point.x >= collideLayer.layerSize.width || point.x < 0)
+    return YES;
+            
+  if (point.y >= collideLayer.layerSize.height || point.y < 0)
+    return YES;
+
   // Check for a tile in the collide layer.
   UInt32 tileGid = [collideLayer tileGIDAt:point];
   if (tileGid)

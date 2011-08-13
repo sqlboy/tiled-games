@@ -141,10 +141,10 @@
           if (abs(x) == 1 && abs(y) == 1) {
             if (![self considerDiagonalMovement])
               continue;
-            adjacentNode->G = 14;
+            adjacentNode->G = 14 + closestNode->G;
           }
           else {
-            adjacentNode->G = 10;
+            adjacentNode->G = 10 + closestNode->G;
           }
           // Calculate H
           // Uses 'Mahhattan' method wich is just the number

@@ -38,6 +38,11 @@
 @synthesize collideValue;
 @synthesize considerDiagonalMovement;
 
+// Pre-define the neighboring tiles checked by the A* algorithm.
+static const int numAdjacentTiles = 8;
+static const int adjacentTiles[8][2] = { -1,1, 0,1, 1,1, -1,0, 
+                                         1,0, -1,-1, 0,-1, 1,-1 };
+                                   
 - (id) initWithTileMap:(CCTMXTiledMap*)aTileMap collideLayer:(NSString*)name
 {
   if ((self=[super init])) 
@@ -111,49 +116,45 @@
       int currentX = closestNode->point.x;
       int currentY = closestNode->point.y;
       
-      for (int y=-1; y<=1; y++)
-      {
-        for(int x=-1; x<=1; x++)
-        {
-          // Skip over self
-          if (x == 0 && y == 0)
-            continue;
-          
-          AStarNode *adjacentNode = [AStarNode
-            nodeAtPoint:ccp(currentX+x, currentY+y)];
-          adjacentNode->parent = closestNode;
-          
-          // Skip over this node if its already been closed.
-          if ([closedNodes containsObject:adjacentNode])
-            continue;
-   
-          // Skip over collide nodes, and add them to the closed set.
-          if ([self isCollision:adjacentNode->point]) {
-            [closedNodes addObject:adjacentNode];
-            continue;
-          }
-
-          // Calculate G
-          // G cost is 10 for adjacent and 14 for a diagonal move.
-          // We use these numbers because the distance to move diagonally
-          // is the square root of 2, or 1.414 the cost of moving
-          // horizontally or vertically.
-          if (abs(x) == 1 && abs(y) == 1) {
-            if (![self considerDiagonalMovement])
-              continue;
-            adjacentNode->G = 14 + closestNode->G;
-          }
-          else {
-            adjacentNode->G = 10 + closestNode->G;
-          }
-          // Calculate H
-          // Uses 'Mahhattan' method wich is just the number
-          // of horizonal and vertical hops to the target.
-          adjacentNode->H = abs(adjacentNode->point.x - dst.x) +
-            abs(adjacentNode->point.y - dst.y);
-
-          [openNodes addObject:adjacentNode];
+      for (int i=0; i<=numAdjacentTiles; i++) {
+        
+        int x = adjacentTiles[i][0];
+        int y = adjacentTiles[i][1];
+              
+        AStarNode *adjacentNode = [AStarNode
+          nodeAtPoint:ccp(currentX+x, currentY+y)];
+        adjacentNode->parent = closestNode;
+        
+        // Skip over this node if its already been closed.
+        if ([closedNodes containsObject:adjacentNode])
+          continue;
+ 
+        // Skip over collide nodes, and add them to the closed set.
+        if ([self isCollision:adjacentNode->point]) {
+          [closedNodes addObject:adjacentNode];
+          continue;
         }
+
+        // Calculate G
+        // G cost is 10 for adjacent and 14 for a diagonal move.
+        // We use these numbers because the distance to move diagonally
+        // is the square root of 2, or 1.414 the cost of moving
+        // horizontally or vertically.
+        if (abs(x) == 1 && abs(y) == 1) {
+          if (![self considerDiagonalMovement])
+            continue;
+          adjacentNode->G = 14 + closestNode->G;
+        }
+        else {
+          adjacentNode->G = 10 + closestNode->G;
+        }
+        // Calculate H
+        // Uses 'Mahhattan' method wich is just the number
+        // of horizonal and vertical hops to the target.
+        adjacentNode->H = abs(adjacentNode->point.x - dst.x) +
+          abs(adjacentNode->point.y - dst.y);
+
+        [openNodes addObject:adjacentNode];
       }
     }
   }

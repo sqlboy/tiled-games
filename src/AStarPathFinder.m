@@ -42,6 +42,8 @@
 static const int numAdjacentTiles = 8;
 static const int adjacentTiles[8][2] = { -1,1, 0,1, 1,1, -1,0, 
                                          1,0, -1,-1, 0,-1, 1,-1 };
+// The default path highlight color
+static const float defaultPathFillColor[4] = {0.2, 0.5, 0.2, 0.3};
                                    
 - (id) initWithTileMap:(CCTMXTiledMap*)aTileMap collideLayer:(NSString*)name
 {
@@ -54,6 +56,9 @@ static const int adjacentTiles[8][2] = { -1,1, 0,1, 1,1, -1,0,
     collideKey = ASTAR_COLLIDE_PROP_NAME;
     collideValue = ASTAR_COLLIDE_PROP_VALUE;
     considerDiagonalMovement = YES;
+    memcpy(pathFillColor, defaultPathFillColor, 
+        sizeof(defaultPathFillColor));
+    pathHighlightImage = [self makePathTile];
   }
 
   return self;
@@ -78,11 +83,11 @@ static const int adjacentTiles[8][2] = { -1,1, 0,1, 1,1, -1,0,
   context = CGBitmapContextCreate(NULL, width, 
     height, 8, width * 4, imageColorSpace, kCGImageAlphaPremultipliedLast);
   
-  CGContextSetRGBFillColor(context, ASTAR_PATH_COLOR);
+  CGContextSetRGBFillColor(context, pathFillColor[0],
+    pathFillColor[1], pathFillColor[2], pathFillColor[3]);
   CGContextFillRect(context, CGRectMake(0, 0, width, height));
   
-  CGImageRef imgRef = CGBitmapContextCreateImage(context);
-  return imgRef;
+  return CGBitmapContextCreateImage(context);
 }
   
 - (AStarNode *) findPathFrom:(CGPoint)src to:(CGPoint)dst
@@ -164,9 +169,6 @@ static const int adjacentTiles[8][2] = { -1,1, 0,1, 1,1, -1,0,
   if (node == nil)
     return;
 
-  // TODO: allow people to chnage the color of the highlight path.
-  CGImageRef pathImage = [self makePathTile];
-  
   int tileWidthOffset = [tileMap tileSize].width / 2;
   int tileHeightOffset = [tileMap tileSize].height / 2;
 
@@ -177,7 +179,7 @@ static const int adjacentTiles[8][2] = { -1,1, 0,1, 1,1, -1,0,
     p1.x = p1.x + tileWidthOffset;
     p1.y = p1.y + tileHeightOffset;
     
-    CCSprite *spr = [CCSprite spriteWithCGImage:pathImage key:@"T"];
+    CCSprite *spr = [CCSprite spriteWithCGImage:pathHighlightImage key:@"T"];
     spr.position = p1;
     [self addChild:spr];
     node = node->parent;
@@ -255,6 +257,19 @@ static const int adjacentTiles[8][2] = { -1,1, 0,1, 1,1, -1,0,
     }
   }
   return lowCostNode;
+}
+
+- (void) setPathRGBAFillColor:(float)red
+                            g:(float)green
+                            b:(float)blue
+                            a:(float)alpha;
+{
+  pathFillColor[0] = red;
+  pathFillColor[1] = green;
+  pathFillColor[2] = blue;
+  pathFillColor[3] = alpha;
+  CFRelease(pathHighlightImage);
+  pathHighlightImage = [self makePathTile];
 }
 
 @end

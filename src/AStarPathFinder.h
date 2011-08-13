@@ -28,7 +28,6 @@
 
 #define ASTAR_COLLIDE_PROP_NAME @"COLLIDE"
 #define ASTAR_COLLIDE_PROP_VALUE @"1"
-#define ASTAR_PATH_COLOR 0.2, 0.5, 0.2, 0.3
 
 @class AStarNode;
 @class AStarPathFinder;
@@ -78,6 +77,8 @@
   NSString *collideKey;
   NSString *collideValue;
   BOOL considerDiagonalMovement;
+  float pathFillColor[4];
+  CGImageRef pathHighlightImage;
 }
 
 /** The name of the tile property which stores the collision boolean. */
@@ -107,7 +108,13 @@
 **/
 - (void) moveSprite:(CCSprite*)sprite 
         from:(CGPoint)src to:(CGPoint)dst atSpeed:(float)speed;
-
+/**
+* Set the fill color for the path highlight.
+**/        
+- (void) setPathRGBAFillColor:(float)red
+                            g:(float)green
+                            b:(float)blue
+                            a:(float)alpha;
 @end
 
 

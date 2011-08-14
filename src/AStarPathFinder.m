@@ -100,9 +100,8 @@ static const float defaultPathFillColor[4] = {0.2, 0.5, 0.2, 0.3};
   [openNodes removeAllObjects];
   [closedNodes removeAllObjects];
 
-  if ([self isCollision:dst]) {
+  if ([self isCollision:dst])
     return nil;
-  }
 
   AStarNode *origin = [AStarNode nodeAtPoint:src];
   origin->parent = nil;
@@ -121,8 +120,8 @@ static const float defaultPathFillColor[4] = {0.2, 0.5, 0.2, 0.3};
       [openNodes removeObject:closestNode];
       [closedNodes addObject:closestNode];
              
-      for (int i=0; i<=numAdjacentTiles; i++) {
-        
+      for (int i=0; i<=numAdjacentTiles; i++) 
+      {
         int x = adjacentTiles[i][0] + closestNode->point.x;
         int y = adjacentTiles[i][1] + closestNode->point.y;
 
@@ -135,7 +134,8 @@ static const float defaultPathFillColor[4] = {0.2, 0.5, 0.2, 0.3};
           continue;
  
         // Skip over collide nodes, and add them to the closed set.
-        if ([self isCollision:adjacentNode->point]) {
+        if ([self isCollision:adjacentNode->point])
+        {
           [closedNodes addObject:adjacentNode];
           continue;
         }
@@ -145,14 +145,15 @@ static const float defaultPathFillColor[4] = {0.2, 0.5, 0.2, 0.3};
         // We use these numbers because the distance to move diagonally
         // is the square root of 2, or 1.414 the cost of moving
         // horizontally or vertically.
-        if (abs(x) == 1 && abs(y) == 1) {
+        if (abs(x) == 1 && abs(y) == 1) 
+        {
           if (![self considerDiagonalMovement])
             continue;
           adjacentNode->G = 14 + closestNode->G;
         }
-        else {
+        else 
           adjacentNode->G = 10 + closestNode->G;
-        }
+
         // Calculate H
         // Uses 'Mahhattan' method wich is just the number
         // of horizonal and vertical hops to the target.
@@ -292,12 +293,14 @@ static const float defaultPathFillColor[4] = {0.2, 0.5, 0.2, 0.3};
   return self;
 }
 
-- (void) dealloc {
+- (void) dealloc 
+{
   parent = nil;
   [super dealloc];
 }
 
-- (int) cost {
+- (int) cost 
+{
   return G + H;
 }
 

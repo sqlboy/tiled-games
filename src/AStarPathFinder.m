@@ -183,14 +183,15 @@ static const float defaultPathFillColor[4] = {0.2, 0.5, 0.2, 0.3};
 
 - (void) highlightPathFrom:(CGPoint)src to:(CGPoint)dst 
 {
-  AStarNode *node = [self findPathFrom:src to:dst];
-  if (node == nil)
+
+  NSArray *nodes = [self getPath:src to:dst];
+  if ([nodes count] == 0)
     return;
 
   int tileWidthOffset = [tileMap tileSize].width / 2;
   int tileHeightOffset = [tileMap tileSize].height / 2;
 
-  while(node != nil)
+  for(AStarNode *node in nodes)
   {
     CGPoint p1 = [collideLayer
       positionAt:node->point];
@@ -200,24 +201,23 @@ static const float defaultPathFillColor[4] = {0.2, 0.5, 0.2, 0.3};
     CCSprite *spr = [CCSprite spriteWithCGImage:pathHighlightImage key:@"T"];
     spr.position = p1;
     [self addChild:spr];
-    node = node->parent;
   }
 }
-
 
 - (void) moveSprite:(CCSprite*)sprite 
          from:(CGPoint)src to:(CGPoint)dst atSpeed:(float)speed
 {
-  AStarNode *node = [self findPathFrom:src to:dst];
-  if (node == nil)
+
+  NSArray *nodes = [self getPath:src to:dst];
+  if ([nodes count] == 0)
     return;
+
+  NSMutableArray *actionList = [NSMutableArray array];
 
   int tileWidthOffset = [tileMap tileSize].width / 2;
   int tileHeightOffset = [tileMap tileSize].height / 2;
-  
-  NSMutableArray *actionList = [NSMutableArray array];
 
-  while(node != nil) 
+  for(AStarNode *node in nodes) 
   {
     CGPoint p1 = [collideLayer
       positionAt:node->point];
@@ -226,11 +226,8 @@ static const float defaultPathFillColor[4] = {0.2, 0.5, 0.2, 0.3};
     
     CCAction *move = [CCMoveTo actionWithDuration: speed position: p1];
     [actionList addObject:move];
-    node = node->parent;
   }
-  
-  NSArray* reversedArray = [[actionList reverseObjectEnumerator] allObjects];
-  [sprite runAction:[CCSequence actionsWithArray:reversedArray]];
+  [sprite runAction:[CCSequence actionsWithArray:actionList]];
 }
 
 

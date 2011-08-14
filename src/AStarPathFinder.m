@@ -95,8 +95,6 @@ static const float defaultPathFillColor[4] = {0.2, 0.5, 0.2, 0.3};
   
 - (AStarNode *) findPathFrom:(CGPoint)src to:(CGPoint)dst
 {
-  [self removeAllChildrenWithCleanup:YES];
-
   [openNodes removeAllObjects];
   [closedNodes removeAllObjects];
 
@@ -183,6 +181,7 @@ static const float defaultPathFillColor[4] = {0.2, 0.5, 0.2, 0.3};
 
 - (void) highlightPathFrom:(CGPoint)src to:(CGPoint)dst 
 {
+  [self clearHighlightPath];
 
   NSArray *nodes = [self getPath:src to:dst];
   if ([nodes count] == 0)
@@ -202,6 +201,11 @@ static const float defaultPathFillColor[4] = {0.2, 0.5, 0.2, 0.3};
     spr.position = p1;
     [self addChild:spr];
   }
+}
+
+- (void) clearHighlightPath
+{
+  [self removeAllChildrenWithCleanup:YES];
 }
 
 - (void) moveSprite:(CCSprite*)sprite 

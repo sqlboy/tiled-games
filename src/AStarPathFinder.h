@@ -109,6 +109,11 @@
 - (void) highlightPathFrom:(CGPoint)src to:(CGPoint)dst;
 
 /**
+* Clears the highlighted path if any
+**/
+- (void) clearHighlightPath;
+
+/**
 * Move given sprite along the calcualted A* path.
 **/
 - (void) moveSprite:(CCSprite*)sprite 

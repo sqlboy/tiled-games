@@ -99,6 +99,11 @@
 - (id) initWithTileMap:(CCTMXTiledMap*)aTileMap collideLayer:(NSString*)name;
 
 /**
+* Return an array of tiles which make up the shortest path between src and dst.
+**/
+- (NSArray*) getPath:(CGPoint)src to:(CGPoint)dst;
+
+/**
 * Highlight the calculated A* path.
 **/
 - (void) highlightPathFrom:(CGPoint)src to:(CGPoint)dst;

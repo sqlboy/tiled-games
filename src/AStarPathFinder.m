@@ -166,6 +166,20 @@ static const float defaultPathFillColor[4] = {0.2, 0.5, 0.2, 0.3};
   return nil;
 }
 
+- (NSArray*) getPath:(CGPoint)src to:(CGPoint)dst
+{
+  NSMutableArray *paths = [NSMutableArray array];
+  AStarNode *node = [self findPathFrom:src to:dst];
+  if (node == nil)
+    return paths;
+  while(node != nil) 
+  {
+    [paths addObject:node];
+    node = node->parent;
+  }
+  
+  return [[paths reverseObjectEnumerator] allObjects];
+}
 
 - (void) highlightPathFrom:(CGPoint)src to:(CGPoint)dst 
 {

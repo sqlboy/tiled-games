@@ -120,11 +120,11 @@ static const float defaultPathFillColor[4] = {0.2, 0.5, 0.2, 0.3};
              
       for (int i=0; i<=numAdjacentTiles; i++) 
       {
-        int x = adjacentTiles[i][0] + closestNode->point.x;
-        int y = adjacentTiles[i][1] + closestNode->point.y;
+        int x = adjacentTiles[i][0];
+        int y = adjacentTiles[i][1];
 
         AStarNode *adjacentNode = [AStarNode
-          nodeAtPoint:ccp(x, y)];
+          nodeAtPoint:ccp(x + closestNode->point.x, y + closestNode->point.y)];
         adjacentNode->parent = closestNode;
         
         // Skip over this node if its already been closed.
@@ -155,7 +155,8 @@ static const float defaultPathFillColor[4] = {0.2, 0.5, 0.2, 0.3};
         // Calculate H
         // Uses 'Mahhattan' method wich is just the number
         // of horizonal and vertical hops to the target.
-        adjacentNode->H = abs(x - dst.x) + abs(y - dst.y);
+        adjacentNode->H = abs(adjacentNode->point.x - dst.x)
+          + abs(adjacentNode->point.y - dst.y);
 
         [openNodes addObject:adjacentNode];
       }

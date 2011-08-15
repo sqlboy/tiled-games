@@ -166,7 +166,7 @@ static const float defaultPathFillColor[4] = {0.2, 0.5, 0.2, 0.3};
           int newCost = otherNode->G - otherNode->parent->G + closestNode->G;
           if (newCost < otherNode->G)
           {                
-            otherNode->G = otherNode->G - otherNode->parent->G + closestNode->G;
+            otherNode->G = newCost;
             otherNode->parent = closestNode;
           }
         }

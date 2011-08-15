@@ -283,11 +283,16 @@ static const float defaultPathFillColor[4] = {0.2, 0.5, 0.2, 0.3};
 - (AStarNode *) lowCostNode
 {  
   AStarNode *lowCostNode = [openNodes anyObject];
-  for (id setObject in openNodes)
+  for (AStarNode* otherNode in openNodes)
   {
-    if ([(AStarNode*)setObject cost] < [lowCostNode cost])
+    if ([otherNode cost] < [lowCostNode cost])
     {
-      lowCostNode = (AStarNode*)setObject;
+      lowCostNode = otherNode;
+    }
+    else if ([otherNode cost] == [lowCostNode cost])
+    {
+      if (otherNode->H < lowCostNode->H)
+        lowCostNode = otherNode;
     }
   }
   return lowCostNode;

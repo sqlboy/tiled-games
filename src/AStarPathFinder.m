@@ -151,12 +151,6 @@ static const float defaultPathFillColor[4] = {0.2, 0.5, 0.2, 0.3};
         }
         else 
           adjacentNode->G = 10 + closestNode->G;
-
-        // Calculate H
-        // Uses 'Mahhattan' method wich is just the number
-        // of horizonal and vertical hops to the target.
-        adjacentNode->H = abs(adjacentNode->point.x - dst.x)
-          + abs(adjacentNode->point.y - dst.y) * 10;
         
         // If the node is already in the open set, check and see if going
         // through the current node is a better path.
@@ -171,6 +165,11 @@ static const float defaultPathFillColor[4] = {0.2, 0.5, 0.2, 0.3};
           }
         }
         else {
+          // Calculate H
+          // Uses 'Mahhattan' method wich is just the number
+          // of horizonal and vertical hops to the target.
+          adjacentNode->H = abs(adjacentNode->point.x - dst.x)
+            + abs(adjacentNode->point.y - dst.y) * 10;
           [openNodes addObject:adjacentNode];
         }
       }

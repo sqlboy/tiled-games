@@ -110,69 +110,65 @@ static const float defaultPathFillColor[4] = {0.2, 0.5, 0.2, 0.3};
   {
     closestNode = [self lowCostNode];
     if (closestNode->point.x == dst.x && closestNode->point.y == dst.y)
-    {
       return closestNode;
-    }
-    else
+
+    [openNodes removeObject:closestNode];
+    [closedNodes addObject:closestNode];
+           
+    for (int i=0; i<=numAdjacentTiles; i++) 
     {
-      [openNodes removeObject:closestNode];
-      [closedNodes addObject:closestNode];
-             
-      for (int i=0; i<=numAdjacentTiles; i++) 
+      int x = adjacentTiles[i][0];
+      int y = adjacentTiles[i][1];
+
+      AStarNode *adjacentNode = [AStarNode
+        nodeAtPoint:ccp(x + closestNode->point.x, y + closestNode->point.y)];
+      adjacentNode->parent = closestNode;
+      
+      // Skip over this node if its already been closed.
+      if ([closedNodes containsObject:adjacentNode])
+        continue;
+
+      // Skip over collide nodes, and add them to the closed set.
+      if ([self isCollision:adjacentNode->point])
       {
-        int x = adjacentTiles[i][0];
-        int y = adjacentTiles[i][1];
+        [closedNodes addObject:adjacentNode];
+        continue;
+      }
 
-        AStarNode *adjacentNode = [AStarNode
-          nodeAtPoint:ccp(x + closestNode->point.x, y + closestNode->point.y)];
-        adjacentNode->parent = closestNode;
-        
-        // Skip over this node if its already been closed.
-        if ([closedNodes containsObject:adjacentNode])
+      // Calculate G
+      // G cost is 10 for adjacent and 14 for a diagonal move.
+      // We use these numbers because the distance to move diagonally
+      // is the square root of 2, or 1.414 the cost of moving
+      // horizontally or vertically.
+      if (abs(x) == 1 && abs(y) == 1) 
+      {
+        if (![self considerDiagonalMovement])
           continue;
- 
-        // Skip over collide nodes, and add them to the closed set.
-        if ([self isCollision:adjacentNode->point])
-        {
-          [closedNodes addObject:adjacentNode];
-          continue;
+        adjacentNode->G = 14 + closestNode->G;
+      }
+      else 
+        adjacentNode->G = 10 + closestNode->G;
+      
+      // If the node is already in the open set, check and see if going
+      // through the current node is a better path.
+      if ([openNodes containsObject:adjacentNode])
+      {
+        AStarNode *otherNode = [openNodes member:adjacentNode];
+        int newCost = otherNode->G - otherNode->parent->G + closestNode->G;
+        if (newCost < otherNode->G)
+        {                
+          otherNode->G = newCost;
+          otherNode->parent = closestNode;
         }
-
-        // Calculate G
-        // G cost is 10 for adjacent and 14 for a diagonal move.
-        // We use these numbers because the distance to move diagonally
-        // is the square root of 2, or 1.414 the cost of moving
-        // horizontally or vertically.
-        if (abs(x) == 1 && abs(y) == 1) 
-        {
-          if (![self considerDiagonalMovement])
-            continue;
-          adjacentNode->G = 14 + closestNode->G;
-        }
-        else 
-          adjacentNode->G = 10 + closestNode->G;
-        
-        // If the node is already in the open set, check and see if going
-        // through the current node is a better path.
-        if ([openNodes containsObject:adjacentNode])
-        {
-          AStarNode *otherNode = [openNodes member:adjacentNode];
-          int newCost = otherNode->G - otherNode->parent->G + closestNode->G;
-          if (newCost < otherNode->G)
-          {                
-            otherNode->G = newCost;
-            otherNode->parent = closestNode;
-          }
-        }
-        else 
-        {
-          // Calculate H
-          // Uses 'Mahhattan' method wich is just the number
-          // of horizonal and vertical hops to the target.
-          adjacentNode->H = (abs(adjacentNode->point.x - dst.x)
-            + abs(adjacentNode->point.y - dst.y)) * 10;
-          [openNodes addObject:adjacentNode];
-        }
+      }
+      else 
+      {
+        // Calculate H
+        // Uses 'Mahhattan' method wich is just the number
+        // of horizonal and vertical hops to the target.
+        adjacentNode->H = (abs(adjacentNode->point.x - dst.x)
+          + abs(adjacentNode->point.y - dst.y)) * 10;
+        [openNodes addObject:adjacentNode];
       }
     }
   }

@@ -115,7 +115,7 @@ static const float defaultPathFillColor[4] = {0.2, 0.5, 0.2, 0.3};
     [openNodes removeObject:closestNode];
     [closedNodes addObject:closestNode];
            
-    for (int i=0; i<=numAdjacentTiles; i++) 
+    for (int i=0; i<numAdjacentTiles; i++) 
     {
       int x = adjacentTiles[i][0];
       int y = adjacentTiles[i][1];

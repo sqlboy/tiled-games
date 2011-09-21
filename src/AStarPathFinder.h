@@ -71,7 +71,8 @@
 **/
 @interface AStarPathFinder : CCLayer {
   CCTMXTiledMap *tileMap;
-  CCTMXLayer *collideLayer;
+  CCTMXLayer *groundLayer;
+  NSMutableSet *collideLayers;
   NSMutableSet *openNodes;
   NSMutableSet *closedNodes;
   NSString *collideKey;
@@ -87,6 +88,8 @@
 @property (copy, nonatomic) NSString *collideValue;
 /** If True the path may use diagonal movement. */
 @property (assign, nonatomic) BOOL considerDiagonalMovement;
+/** Read-only accessor for the ground layer **/
+@property (readonly) CCTMXLayer *groundLayer;
 
 /**
 * Initialize the object with a CCTMXTileMap and the name of
@@ -96,7 +99,17 @@
 * which is checked for the default value of 1.  Use setCollideKey
 * and setCollideValue to customize.
 */
-- (id) initWithTileMap:(CCTMXTiledMap*)aTileMap collideLayer:(NSString*)name;
+- (id) initWithTileMap:(CCTMXTiledMap*)aTileMap groundLayer:(NSString*)name;
+
+/**
+* Add a layer to look for collisions on.
+**/
+- (void) addCollideLayer:(NSString*)name;
+
+/**
+* Remove a set collision layer
+**/
+- (void) removeCollideLayer:(NSString*)name;
 
 /**
 * Return an array of tiles which make up the shortest path between src and dst.

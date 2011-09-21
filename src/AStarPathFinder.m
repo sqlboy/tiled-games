@@ -37,6 +37,7 @@
 @synthesize collideKey;
 @synthesize collideValue;
 @synthesize considerDiagonalMovement;
+@synthesize groundLayer;
 
 // Pre-define the neighboring tiles checked by the A* algorithm.
 static const int numAdjacentTiles = 8;
@@ -45,14 +46,15 @@ static const int adjacentTiles[8][2] = { -1,1, 0,1, 1,1, -1,0,
 // The default path highlight color
 static const float defaultPathFillColor[4] = {0.2, 0.5, 0.2, 0.3};
                                    
-- (id) initWithTileMap:(CCTMXTiledMap*)aTileMap collideLayer:(NSString*)name
+- (id) initWithTileMap:(CCTMXTiledMap*)aTileMap groundLayer:(NSString*)name
 {
   if ((self=[super init])) 
   {
     tileMap = [aTileMap retain];
+    groundLayer = [aTileMap layerNamed:name];
     openNodes = [[NSMutableSet setWithCapacity:16] retain];
     closedNodes = [[NSMutableSet setWithCapacity:64] retain];
-    collideLayer = [tileMap layerNamed:name];
+    collideLayers = [[NSMutableSet set] retain];
     collideKey = ASTAR_COLLIDE_PROP_NAME;
     collideValue = ASTAR_COLLIDE_PROP_VALUE;
     considerDiagonalMovement = YES;
@@ -69,6 +71,7 @@ static const float defaultPathFillColor[4] = {0.2, 0.5, 0.2, 0.3};
   [tileMap release];
   [openNodes release];
   [closedNodes release];
+  [collideLayers release];
   [collideKey release];
   [collideValue release];
   CFRelease(pathHighlightImage);
@@ -203,7 +206,7 @@ static const float defaultPathFillColor[4] = {0.2, 0.5, 0.2, 0.3};
 
   for(AStarNode *node in nodes)
   {
-    CGPoint p1 = [collideLayer
+    CGPoint p1 = [groundLayer
       positionAt:node->point];
     p1.x = p1.x + tileWidthOffset;
     p1.y = p1.y + tileHeightOffset;
@@ -234,7 +237,7 @@ static const float defaultPathFillColor[4] = {0.2, 0.5, 0.2, 0.3};
 
   for(AStarNode *node in nodes) 
   {
-    CGPoint p1 = [collideLayer
+    CGPoint p1 = [groundLayer
       positionAt:node->point];
     p1.x = p1.x + tileWidthOffset;
     p1.y = p1.y + tileHeightOffset;
@@ -245,32 +248,47 @@ static const float defaultPathFillColor[4] = {0.2, 0.5, 0.2, 0.3};
   [sprite runAction:[CCSequence actionsWithArray:actionList]];
 }
 
+- (void) addCollideLayer:(NSString*)name 
+{
+  CCTMXLayer *layer = [tileMap layerNamed:name];
+  if (layer != nil) 
+  {
+    [collideLayers addObject:layer];
+  }
+}
+
+- (void) removeCollideLayer:(NSString*)name 
+{
+  [collideLayers removeObject:[tileMap layerNamed:name]];
+}
 
 - (BOOL) isCollision:(CGPoint)point
 {
-  
-  if (point.x >= collideLayer.layerSize.width || point.x < 0)
+  if (point.x >= groundLayer.layerSize.width || point.x < 0)
     return YES;
             
-  if (point.y >= collideLayer.layerSize.height || point.y < 0)
+  if (point.y >= groundLayer.layerSize.height || point.y < 0)
     return YES;
 
-  // Check for a tile in the collide layer.
-  UInt32 tileGid = [collideLayer tileGIDAt:point];
-  if (tileGid)
+  for(CCTMXLayer *collideLayer in collideLayers)
   {
-    // If a tile exists, see if collide is enabled on the entire layer.
-    NSDictionary *ldict = [collideLayer propertyNamed:collideKey];
-    if (ldict)
-      return YES;
-
-    // If not, then check the tile for the collide property.
-    NSDictionary *dict = [tileMap propertiesForGID:tileGid];
-    if (dict)
+    // Check for a tile in the collide layer.
+    UInt32 tileGid = [collideLayer tileGIDAt:point];
+    if (tileGid)
     {
-      NSString *collide = [dict valueForKey:collideKey];
-      if (collide && [collide compare:collideValue] == NSOrderedSame)
+      // If a tile exists, see if collide is enabled on the entire layer.
+      NSDictionary *ldict = [collideLayer propertyNamed:collideKey];
+      if (ldict)
         return YES;
+
+      // If not, then check the tile for the collide property.
+      NSDictionary *dict = [tileMap propertiesForGID:tileGid];
+      if (dict)
+      {
+        NSString *collide = [dict valueForKey:collideKey];
+        if (collide && [collide compare:collideValue] == NSOrderedSame)
+          return YES;
+      }
     }
   }
   return NO;

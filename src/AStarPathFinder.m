@@ -30,7 +30,7 @@
   - (AStarNode *) lowCostNode;
   - (BOOL) isCollision:(CGPoint)point;
   - (AStarNode *) findPathFrom:(CGPoint)src to:(CGPoint)dst;
-  - (CGImageRef) makePathTile;
+  - (CGImageRef) newPathTile;
 @end
 
 @implementation AStarPathFinder
@@ -50,17 +50,17 @@ static const float defaultPathFillColor[4] = {0.2, 0.5, 0.2, 0.3};
 {
   if ((self=[super init])) 
   {
-    tileMap = [aTileMap retain];
+    tileMap = aTileMap;
     groundLayer = [aTileMap layerNamed:name];
-    openNodes = [[NSMutableSet setWithCapacity:16] retain];
-    closedNodes = [[NSMutableSet setWithCapacity:64] retain];
-    collideLayers = [[NSMutableSet set] retain];
+    openNodes = [NSMutableSet setWithCapacity:16];
+    closedNodes = [NSMutableSet setWithCapacity:64];
+    collideLayers = [NSMutableSet set];
     collideKey = ASTAR_COLLIDE_PROP_NAME;
     collideValue = ASTAR_COLLIDE_PROP_VALUE;
     considerDiagonalMovement = YES;
     memcpy(pathFillColor, defaultPathFillColor, 
         sizeof(defaultPathFillColor));
-    pathHighlightImage = [self makePathTile];
+    pathHighlightImage = [self newPathTile];
   }
 
   return self;
@@ -68,17 +68,10 @@ static const float defaultPathFillColor[4] = {0.2, 0.5, 0.2, 0.3};
 
 - (void) dealloc
 {
-  [tileMap release];
-  [openNodes release];
-  [closedNodes release];
-  [collideLayers release];
-  [collideKey release];
-  [collideValue release];
   CFRelease(pathHighlightImage);
-  [super dealloc];
 }
 
-- (CGImageRef) makePathTile
+- (CGImageRef) newPathTile
 {
   int width = [tileMap tileSize].width;
   int height = [tileMap tileSize].height;
@@ -92,8 +85,10 @@ static const float defaultPathFillColor[4] = {0.2, 0.5, 0.2, 0.3};
   CGContextSetRGBFillColor(context, pathFillColor[0],
     pathFillColor[1], pathFillColor[2], pathFillColor[3]);
   CGContextFillRect(context, CGRectMake(0, 0, width, height));
-  
-  return CGBitmapContextCreateImage(context);
+  CFRelease(imageColorSpace);
+  CGImageRef tile = CGBitmapContextCreateImage(context);
+  CFRelease(context);
+  return tile;
 }
   
 - (AStarNode *) findPathFrom:(CGPoint)src to:(CGPoint)dst
@@ -322,7 +317,7 @@ static const float defaultPathFillColor[4] = {0.2, 0.5, 0.2, 0.3};
   pathFillColor[2] = blue;
   pathFillColor[3] = alpha;
   CFRelease(pathHighlightImage);
-  pathHighlightImage = [self makePathTile];
+  pathHighlightImage = [self newPathTile];
 }
 
 @end
@@ -331,7 +326,7 @@ static const float defaultPathFillColor[4] = {0.2, 0.5, 0.2, 0.3};
 
 + (id) nodeAtPoint:(CGPoint)point;
 {
-  return [[[AStarNode alloc] initAtPoint:point] autorelease];
+  return [[AStarNode alloc] initAtPoint:point];
 }
 
 - (id) initAtPoint:(CGPoint)pnt
@@ -340,12 +335,6 @@ static const float defaultPathFillColor[4] = {0.2, 0.5, 0.2, 0.3};
   x = pnt.x;
   y = pnt.y;
   return self;
-}
-
-- (void) dealloc 
-{
-  parent = nil;
-  [super dealloc];
 }
 
 - (int) cost 
